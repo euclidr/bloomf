@@ -21,7 +21,7 @@ $ go get github.com/euclidr/bloomf
 
 ### dependencies
 
-go package bellow is also needed
+go packages bellow is also needed
 
 * [go-redis](https://github.com/go-redis/redis)
 * [murmur3](https://github.com/twmb/murmur3)
@@ -29,7 +29,7 @@ go package bellow is also needed
 
 ### Example
 
-```
+```go
 package main
 
 import (
