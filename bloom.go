@@ -55,7 +55,15 @@ type Bloom struct {
 	parts []*partInfo
 }
 
-// New create and initialize bloomfilter, returns error if duplicated
+// New create and initialize bloomfilter
+// client is instance of redis.Client
+// name should be a unique key in redis instance
+//     and it shouldn't exist before New function is called
+// n is estimated amount of total element that will be marked in bloomfilter
+// p is the expected false positive rate
+//
+// It returns Bloom instance if no error
+// It returns error if duplicated or because of other errors such as bad network
 func New(client *redis.Client, name string, n uint64, p float64) (bloom *Bloom, err error) {
 	info, err := client.HGetAll(name).Result()
 	if err == nil {
@@ -93,6 +101,12 @@ func (b *Bloom) Clear() {
 }
 
 // GetByName get bloomfilter by name
+// client is instance of redis.Client
+// name should be a unique key in redis instance
+//     and it should exist before New function is called
+//
+// It returns Bloom instance if no error
+// It returns error if not exists or because of other errors such as bad network
 func GetByName(client *redis.Client, name string) (bloom *Bloom, err error) {
 	info, err := client.HGetAll(name).Result()
 	// fmt.Println(info)
