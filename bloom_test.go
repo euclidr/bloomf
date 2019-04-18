@@ -39,11 +39,11 @@ func TestCalculateParams(t *testing.T) {
 		{n: 100000000, p: 0.0001, m: 1917011676, k: 13},
 	}
 
-	for _, test := range tests {
+	for row, test := range tests {
 		bloom := &Bloom{name: "bl", n: test.n, p: test.p}
 		bloom.calculateParams()
-		assert.Equal(t, bloom.m, test.m, "m should be equal")
-		assert.Equal(t, bloom.k, test.k, "k should be equal")
+		assert.Equal(t, test.m, bloom.m, "m should be equal, row: %d", row)
+		assert.Equal(t, test.k, bloom.k, "k should be equal, row: %d", row)
 	}
 }
 
@@ -59,12 +59,12 @@ func TestCalculateParts(t *testing.T) {
 		{name: "bf2", m: PartBitCount*5 + 1024, parts: 6, lastPart: "bf2:5", lastPartMax: 1024},
 	}
 
-	for _, test := range tests {
+	for row, test := range tests {
 		bloom := &Bloom{name: test.name, m: test.m}
 		bloom.calculateParts()
-		assert.Equal(t, len(bloom.parts), test.parts, "part size should be valid")
-		assert.Equal(t, bloom.parts[test.parts-1].Name, test.lastPart, "last part name should be valid")
-		assert.Equal(t, bloom.parts[test.parts-1].Max, test.lastPartMax, "last part max should be valid")
+		assert.Equal(t, test.parts, len(bloom.parts), "part size should be valid, row: %d", row)
+		assert.Equal(t, test.lastPart, bloom.parts[test.parts-1].Name, "last part name should be valid, row: %d", row)
+		assert.Equal(t, test.lastPartMax, bloom.parts[test.parts-1].Max, "last part max should be valid, row: %d", row)
 	}
 }
 
@@ -107,11 +107,11 @@ func TestHashes(t *testing.T) {
 	}()
 
 	bl, err := New(client, "bf", 100000, 0.001)
-	assert.Nil(t, err, "should not be error")
-	for _, test := range tests {
+	assert.NoError(t, err)
+	for row, test := range tests {
 		hashes := bl.hashes([]byte(test.value))
 		t.Logf("hashes: %v", hashes)
-		assert.Equal(t, len(hashes), int(bl.k), "should be k hashes")
+		assert.Equal(t, len(hashes), int(bl.k), "should be k hashes, row: %d", row)
 	}
 }
 
@@ -129,11 +129,11 @@ func TestLocations(t *testing.T) {
 	}()
 
 	bl, err := New(client, "bf", 100000, 0.001)
-	assert.Nil(t, err, "should not be error")
-	for _, test := range tests {
+	assert.NoError(t, err)
+	for row, test := range tests {
 		locations := bl.locations([]byte(test.value))
 		t.Logf("locations: %v", locations)
-		assert.Equal(t, len(locations), int(bl.k), "should be k locations")
+		assert.Equal(t, len(locations), int(bl.k), "should be k locations, row: %d", row)
 	}
 }
 
@@ -152,15 +152,15 @@ func TestAddAndCheck(t *testing.T) {
 	}()
 
 	bl, err := New(client, "bf", 100000, 0.001)
-	assert.Nil(t, err, "should not be error")
-	for _, test := range tests {
+	assert.NoError(t, err)
+	for row, test := range tests {
 		ex, err := bl.Exists([]byte(test.value))
-		assert.Nil(t, err, "should not be error")
-		assert.False(t, ex, "should not exist")
+		assert.NoError(t, err, "row: %d", row)
+		assert.False(t, ex, "row: %d", row)
 		err = bl.Add([]byte(test.value))
-		assert.Nil(t, err, "should not be error")
+		assert.NoError(t, err, "row: %d", row)
 		ex, err = bl.Exists([]byte(test.value))
-		assert.Nil(t, err, "should not be error")
-		assert.True(t, ex, "should exist")
+		assert.NoError(t, err, "row: %d", row)
+		assert.True(t, ex, "row: %d", row)
 	}
 }
