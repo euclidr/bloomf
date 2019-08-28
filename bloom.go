@@ -112,7 +112,7 @@ func (b *Bloom) Clear() {
 // It returns Bloom instance if no error
 // It returns error if not exists or because of other errors such as bad network
 func GetByName(client *redis.Client, name string) (bloom *Bloom, err error) {
-	info, err := client.HGetAll(name).Result()
+	info, err := client.Pipeline().HGetAll(name).Result()
 	// fmt.Println(info)
 	if err != nil {
 		return nil, err
