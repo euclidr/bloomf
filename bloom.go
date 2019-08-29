@@ -158,6 +158,7 @@ func GetByName(client *redis.Client, name string) (bloom *Bloom, err error) {
 	}
 
 	bloom = &Bloom{
+		client:client,
 		name:  name,
 		n:     n,
 		p:     p,
