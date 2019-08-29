@@ -69,7 +69,7 @@ type Bloom struct {
 // It returns Bloom instance if no error
 // It returns error if duplicated or because of other errors such as bad network
 func New(client *redis.Client, name string, n uint64, p float64) (bloom *Bloom, err error) {
-	info, err := client.HGetAll(name).Result()
+	info, err := client.Pipeline().HGetAll(name).Result()
 	if err == nil {
 		if len(info) != 0 {
 			return nil, ErrDuplicated
