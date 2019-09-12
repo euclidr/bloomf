@@ -70,18 +70,19 @@ func TestCalculateParts(t *testing.T) {
 
 func TestCreateBloomFilter(t *testing.T) {
 	tests := []struct {
-		name string
-		n    uint64
-		p    float64
+		name  string
+		n     uint64
+		p     float64
+		value string
 	}{
-		{name: "bf1", n: 100000, p: 0.01},
+		{name: "bf1", n: 100000, p: 0.01, value: "some value"},
 	}
 
 	defer func() {
 		client.FlushDB()
 	}()
 
-	for _, test := range tests {
+	for row, test := range tests {
 		bl1, err := New(client, test.name, test.n, test.p)
 		assert.Nil(t, err, "should not be error")
 		bl2, err := GetByName(client, test.name)
@@ -90,6 +91,13 @@ func TestCreateBloomFilter(t *testing.T) {
 		assert.Equal(t, bl1.k, bl2.k, "k should be equal")
 		assert.Equal(t, len(bl1.parts), len(bl2.parts), "parts should be equal")
 		assert.Equal(t, int(client.Exists(bl1.parts[0].Name).Val()), 1, "part should exist in redis")
+
+		// check if bl2 work correctly
+		err = bl2.Add([]byte(test.value))
+		assert.NoError(t, err, "row: %d", row)
+		ex, err := bl2.Exists([]byte(test.value))
+		assert.NoError(t, err, "row: %d", row)
+		assert.True(t, ex, "row: %d", row)
 	}
 }
 
